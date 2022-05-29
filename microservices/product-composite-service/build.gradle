@@ -1,0 +1,34 @@
+plugins {
+	id 'org.springframework.boot' version '2.5.2'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+}
+
+group = 'com.mylearning.microservices.core'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+	mavenCentral()
+}
+
+bootJar{
+	enabled = true
+}
+jar{
+	enabled = false
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'io.springfox:springfox-boot-starter:3.0.0'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.projectreactor:reactor-test'
+	implementation files('libs/api_definition-0.0.2-SNAPSHOT-plain.jar')
+	implementation files('libs/utility-0.0.1-SNAPSHOT-plain.jar')
+}
+
+test {
+	useJUnitPlatform()
+}

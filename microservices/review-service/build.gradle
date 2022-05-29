@@ -1,0 +1,38 @@
+plugins {
+	id 'org.springframework.boot' version '2.5.2'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+}
+
+group = 'com.mylearning.microservices.core'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+	mavenCentral()
+}
+bootJar{
+	enabled = true
+}
+jar{
+	enabled = false
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+	implementation('mysql:mysql-connector-java')
+	testImplementation 'com.h2database:h2:1.4.195'
+	testImplementation 'io.projectreactor:reactor-test'
+	implementation files('libs/api_definition-0.0.2-SNAPSHOT-plain.jar')
+	implementation files('libs/utility-0.0.1-SNAPSHOT-plain.jar')
+	implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+	annotationProcessor('org.mapstruct:mapstruct-processor:1.4.2.Final')
+
+}
+
+test {
+	useJUnitPlatform()
+}
