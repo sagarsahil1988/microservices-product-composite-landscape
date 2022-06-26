@@ -19,6 +19,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,7 +58,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     }
 
     @Override
-    public Product createProduct(Product body) {
+    public Mono<Product> createProduct(Product body) {
         try {
             return restTemplate.postForObject(productServiceUrl, body, Product.class);
         }catch (HttpClientErrorException ex){
@@ -67,7 +69,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
 
 
     @Override
-    public Product getProduct(int productId) {
+    public Mono<Product> getProduct(int productId) {
         try {
             String url = productServiceUrl + productId;
             LOG.debug("Will call getProductAPI on url : {}", url);
@@ -82,7 +84,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     }
 
     @Override
-    public void deleteProduct(int productId) {
+    public Mono<Void> deleteProduct(int productId) {
         try{
             restTemplate.delete(productServiceUrl + "/" + productId);
         }catch (HttpClientErrorException ex){
@@ -92,7 +94,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
 
 
     @Override
-    public Recommendation createRecommendation(Recommendation body) {
+    public Mono<Recommendation> createRecommendation(Recommendation body) {
         try {
             LOG.debug("Will post a new recommendation to URL : {}", recommendationServiceUrl);
             Recommendation recommendation = restTemplate.postForObject(recommendationServiceUrl, body, Recommendation.class);
@@ -105,7 +107,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     }
 
     @Override
-    public List<Recommendation> getRecommendations(int productId) {
+    public Flux<Recommendation> getRecommendations(int productId) {
         try{
             String url = recommendationServiceUrl + productId;
             LOG.debug("Will call get Recommendation API on URL: {}", url);
@@ -120,7 +122,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     }
 
     @Override
-    public void deleteRecommendations(int productId) {
+    public Mono<Void> deleteRecommendations(int productId) {
         try {
             String url = recommendationServiceUrl + "?productId=" + productId;
             LOG.debug("Will call the deleteRecommendation API on url : {}", url);
@@ -131,7 +133,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     }
 
     @Override
-    public Review createReview(Review body) {
+    public Mono<Review> createReview(Review body) {
         try {
             LOG.debug("Will post a new review to url: {}", reviewServiceUrl);
             Review review = restTemplate.postForObject(reviewServiceUrl, body, Review.class);
@@ -143,7 +145,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     }
 
     @Override
-    public List<Review> getReviews(int productId) {
+    public Flux<Review> getReviews(int productId) {
         try{
             String url = reviewServiceUrl + productId;
             LOG.debug("Will call get Review Api in url: {}", url);
@@ -158,7 +160,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     }
 
     @Override
-    public void deleteReviews(int productId) {
+    public Mono<Void> deleteReviews(int productId) {
         try{
             String url = reviewServiceUrl + "?productId=" + productId;
             LOG.debug("Will call the deleteReview API on url: {}", url);

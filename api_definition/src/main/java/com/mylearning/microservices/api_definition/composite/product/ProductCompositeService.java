@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @Api(description = "REST API for composite product information.")
 public interface ProductCompositeService {
@@ -20,7 +21,7 @@ public interface ProductCompositeService {
             value = "/product-composite",
             consumes = "application/json"
     )
-    void createCompositeProduct(@RequestBody ProductAggregate body);
+    Mono<Void> createCompositeProduct(@RequestBody ProductAggregate body);
 
     @ApiOperation(
             value = "${api.product-composite.get-composite-product.description}",
@@ -37,7 +38,7 @@ public interface ProductCompositeService {
             value = "/product-composite/{productId}",
             produces = "application/json"
     )
-    ProductAggregate getProduct(@PathVariable int productId);
+    Mono<ProductAggregate> getProduct(@PathVariable int productId);
 
     @ApiOperation(
             value = "${api.product-composite.delete-composite-product.description}",
@@ -45,8 +46,8 @@ public interface ProductCompositeService {
     )
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Bad Request, invalid format of the request. See response message for more information."),
-            @ApiResponse(code = 422, message = "Unprocessable entity, input parameters caused the processing to fail. See response message for more information.")
+            @ApiResponse(code = 422, message = "Un-processable entity, input parameters caused the processing to fail. See response message for more information.")
     })
     @DeleteMapping(value = "/product-composite/{productId}")
-    void deleteCompositeProduct(@PathVariable int productId);
+    Mono<Void> deleteCompositeProduct(@PathVariable int productId);
 }
