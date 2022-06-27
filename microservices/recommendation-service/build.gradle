@@ -27,8 +27,10 @@ dependencies {
 	annotationProcessor('org.mapstruct:mapstruct-processor:1.4.2.Final')
 	testImplementation('de.flapdoodle.embed:de.flapdoodle.embed.mongo')
 	testImplementation 'io.projectreactor:reactor-test'
-	implementation files('libs/api_definition-0.0.2-SNAPSHOT-plain.jar')
-	implementation files('libs/utility-0.0.1-SNAPSHOT-plain.jar')
+//	implementation files('libs/api_definition-0.0.2-SNAPSHOT-plain.jar')
+//	implementation files('libs/utility-0.0.1-SNAPSHOT-plain.jar')
+	implementation project(':api_definition')
+	implementation project(':utility')
 }
 
 test {

@@ -29,9 +29,10 @@ dependencies {
 	testImplementation('de.flapdoodle.embed:de.flapdoodle.embed.mongo')
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
-	implementation files('libs/api_definition-0.0.2-SNAPSHOT-plain.jar')
-	implementation files('libs/utility-0.0.1-SNAPSHOT-plain.jar')
-
+//	implementation files('libs/api_definition-0.0.2-SNAPSHOT-plain.jar')
+//	implementation files('libs/utility-0.0.1-SNAPSHOT-plain.jar')
+	implementation project(':api_definition')
+	implementation project(':utility')
 }
 
 test {

@@ -1,15 +1,20 @@
 package com.mylearning.microservices.core.productservice;
 
 import com.mylearning.microservices.api_definition.core.product.Product;
+import com.mylearning.microservices.api_definition.event.Event;
 import com.mylearning.microservices.core.productservice.persistance.ProductRepository;
+import com.mylearning.microservices.core.utility.exceptions.InvalidInputEception;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
+
+import java.util.function.Consumer;
 
 import static org.springframework.http.HttpStatus.*;
 import static reactor.core.publisher.Mono.just;
@@ -23,47 +28,75 @@ class ProductServiceApplicationTests {
 	@Autowired
 	WebTestClient webTestClient;
 
+	@Autowired
+	@Qualifier("messageProcessor")
+	private Consumer<Event<Integer, Product>> messageProcessor;
+
 	@BeforeEach
 	public void setUpDatabase(){
-		productRepository.deleteAll();
+		productRepository.deleteAll().block();
 	}
 
 	@Test
 	public void getProductById(){
-		int productId =1;
+		int productId = 1;
+
+		Assertions.assertNull(productRepository.findByProductId(productId).block());
+		Assertions.assertEquals(0, productRepository.count().block());
+
+		sendCreateProductEvent(productId);
+
 		postAndVerifyProduct(productId, OK);
-		Assertions.assertTrue(productRepository.findByProductId(productId).isPresent());
-		getAndVerifyProduct(productId, OK).jsonPath("$.productId").isEqualTo(productId);
+
+		Assertions.assertNotNull(productRepository.findByProductId(productId).block());
+		Assertions.assertEquals(0, productRepository.count().block());
+
+		getAndVerifyProduct(productId, OK)
+				.jsonPath("$.productId").isEqualTo(productId);
 	}
 
+	private void sendCreateProductEvent(int productId) {
+		Product product = new Product(productId, "Name"+productId , productId, "SA");
+		Event<Integer, Product> event = new Event(Event.Type.CREATE, productId, product);
+		messageProcessor.accept(event);
 
+	}
 
 	@Test
 	public void duplicateError(){
-		int productId =1;
-		postAndVerifyProduct(productId, OK);
-		Assertions.assertTrue(productRepository.findByProductId(productId).isPresent());
+		int productId = 1;
 
-		postAndVerifyProduct(productId, UNPROCESSABLE_ENTITY)
-				.jsonPath("$.path").isEqualTo("/product")
-				.jsonPath("$.message").isEqualTo("Duplicate Key , Product Id : " + productId);
+		Assertions.assertNull(productRepository.findByProductId(productId).block());
+		sendCreateProductEvent(productId);
+		Assertions.assertNotNull(productRepository.findByProductId(productId).block());
+
+		Assertions.assertThrows(InvalidInputEception.class, () -> sendCreateProductEvent(productId), "Expected a InvalidInputException here!");
+
 	}
 
 	@Test
 	public void deleteProduct(){
 		int productId = 1;
-		postAndVerifyProduct(productId,OK);
-		deleteAndVerifyProduct(productId, OK);
-		Assertions.assertFalse(productRepository.findByProductId(productId).isPresent());
+		sendCreateProductEvent(productId);
+		Assertions.assertNotNull(productRepository.findByProductId(productId).block());
+		sendDeleteProductEvent(productId);
+		Assertions.assertNull(productRepository.findByProductId(productId).block());
 
+		sendDeleteProductEvent(productId);
+
+	}
+
+	private void sendDeleteProductEvent(int productId) {
+		Event<Integer, Product> event = new Event<>(Event.Type.DELETE, productId, null);
+		messageProcessor.accept(event);
 	}
 
 	@Test
 	public void getProductInvalidParameterString(){
-		System.out.println(getAndVerifyProduct("/no-integer", BAD_REQUEST).toString());
+
 		getAndVerifyProduct("/no-integer", BAD_REQUEST)
-				.jsonPath("$.path").isEqualTo("/product/no-integer");
-//				.jsonPath("$.message").isEqualTo("Type mismatch");
+				.jsonPath("$.path").isEqualTo("/product/no-integer")
+				.jsonPath("$.message").isEqualTo("Type mismatch.");
 	}
 
 	@Test

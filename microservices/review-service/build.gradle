@@ -26,10 +26,12 @@ dependencies {
 	implementation('mysql:mysql-connector-java')
 	testImplementation 'com.h2database:h2:1.4.195'
 	testImplementation 'io.projectreactor:reactor-test'
-	implementation files('libs/api_definition-0.0.2-SNAPSHOT-plain.jar')
-	implementation files('libs/utility-0.0.1-SNAPSHOT-plain.jar')
+//	implementation files('libs/api_definition-0.0.2-SNAPSHOT-plain.jar')
+//	implementation files('libs/utility-0.0.1-SNAPSHOT-plain.jar')
 	implementation 'org.mapstruct:mapstruct:1.4.2.Final'
 	annotationProcessor('org.mapstruct:mapstruct-processor:1.4.2.Final')
+	implementation project(':api_definition')
+	implementation project(':utility')
 
 }
 
